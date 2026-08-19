@@ -1,6 +1,6 @@
 import { EventRepository } from '../repositories/event.repository.js';
 import { ApiError } from '../utils/ApiError.js';
-import { EVENT_STATUSES } from '../models/event.model.js';
+import { EVENT_STATUSES } from '../utils/constants.js';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;

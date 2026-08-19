@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
+import { TICKET_STATUSES } from '../utils/constants.js';
 
 const COLLECTION = 'tickets';
-
-export const TICKET_STATUSES = ['active', 'cancelled'];
 
 const ticketSchema = new mongoose.Schema(
   {

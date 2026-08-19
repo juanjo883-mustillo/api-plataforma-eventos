@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
+import { USER_ROLES } from '../utils/constants.js';
 
 const COLLECTION = 'users';
-
-export const USER_ROLES = ['user', 'organizer', 'admin'];
 
 const userSchema = new mongoose.Schema(
   {
