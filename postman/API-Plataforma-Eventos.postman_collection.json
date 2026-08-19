@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "API Plataforma de Eventos",
+    "description": "Colección con el flujo completo: registro, login, eventos, tickets y validaciones de roles/cupo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "eventId", "value": "" },
+    { "key": "ticketId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Sesiones",
+      "item": [
+        {
+          "name": "Register (user)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/sessions/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Ana\",\n  \"last_name\": \"User\",\n  \"email\": \"user@test.com\",\n  \"password\": \"Password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (user)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/sessions/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@test.com\",\n  \"password\": \"Password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Current",
+          "request": { "method": "GET", "url": "{{baseUrl}}/sessions/current" }
+        },
+        {
+          "name": "Logout",
+          "request": { "method": "POST", "url": "{{baseUrl}}/sessions/logout" }
+        },
+        {
+          "name": "Current (post-logout -> 401 esperado)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/sessions/current" }
+        },
+        {
+          "name": "Login (organizer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/sessions/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"organizer@test.com\",\n  \"password\": \"Password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/sessions/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"Password123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Eventos",
+      "item": [
+        {
+          "name": "Crear evento como user (-> 403 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Evento inválido\",\n  \"description\": \"desc\",\n  \"category\": \"Tech\",\n  \"date\": \"2026-12-01T20:00:00.000Z\",\n  \"location\": \"CABA\",\n  \"capacity\": 10,\n  \"price\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear evento como organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.payload && body.payload.id) { pm.collectionVariables.set('eventId', body.payload.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Congreso Tech 2026\",\n  \"description\": \"Charlas y workshops de tecnología\",\n  \"category\": \"Tecnología\",\n  \"date\": \"2026-12-01T20:00:00.000Z\",\n  \"location\": \"Buenos Aires\",\n  \"capacity\": 1,\n  \"price\": 0,\n  \"status\": \"published\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar eventos (paginado)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/events?status=published&page=1&limit=5" }
+        },
+        {
+          "name": "Detalle de evento",
+          "request": { "method": "GET", "url": "{{baseUrl}}/events/{{eventId}}" }
+        },
+        {
+          "name": "Modificar evento ajeno (con otro organizer -> 403 esperado)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/events/{{eventId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Intento de edición ajena\"\n}" }
+          }
+        },
+        {
+          "name": "Modificar evento como admin",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/events/{{eventId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Congreso Tech 2026 (editado por admin)\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Tickets",
+      "item": [
+        {
+          "name": "Inscribirse a evento (user)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.payload && body.payload.id) { pm.collectionVariables.set('ticketId', body.payload.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/events/{{eventId}}/tickets",
+            "body": { "mode": "raw", "raw": "{\n  \"quantity\": 1\n}" }
+          }
+        },
+        {
+          "name": "Inscripción duplicada (-> 409 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/events/{{eventId}}/tickets",
+            "body": { "mode": "raw", "raw": "{\n  \"quantity\": 1\n}" }
+          }
+        },
+        {
+          "name": "Mis tickets",
+          "request": { "method": "GET", "url": "{{baseUrl}}/tickets/my-tickets" }
+        },
+        {
+          "name": "Inscripciones del evento (organizer dueño/admin)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/events/{{eventId}}/tickets" }
+        },
+        {
+          "name": "Cancelar ticket",
+          "request": { "method": "PATCH", "url": "{{baseUrl}}/tickets/{{ticketId}}/cancel" }
+        }
+      ]
+    }
+  ]
+}
