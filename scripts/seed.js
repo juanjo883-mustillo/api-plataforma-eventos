@@ -29,6 +29,13 @@ const TEST_USERS = [
     password: 'Password123',
     role: 'admin',
   },
+  {
+    first_name: 'Diego',
+    last_name: 'Organizer2',
+    email: 'organizer2@test.com',
+    password: 'Password123',
+    role: 'organizer',
+  },
 ];
 
 async function seed() {
@@ -41,13 +48,13 @@ async function seed() {
     const existing = await UserModel.findOne({ email: userData.email });
     if (existing) {
       console.log(`Ya existe: ${userData.email}`);
-      createdUsers[userData.role] = existing;
+      createdUsers[userData.email] = existing;
       continue;
     }
 
     const hashedPassword = await hashPassword(userData.password);
     const user = await UserModel.create({ ...userData, password: hashedPassword });
-    createdUsers[userData.role] = user;
+    createdUsers[userData.email] = user;
     console.log(`Usuario creado: ${userData.email} (${userData.role}) / password: ${userData.password}`);
   }
 
@@ -62,7 +69,7 @@ async function seed() {
       capacity: 100,
       price: 0,
       status: 'published',
-      organizer: createdUsers.organizer._id,
+      organizer: createdUsers['organizer@test.com']._id,
     });
     console.log('Evento de ejemplo creado: Congreso Tech 2026');
   } else {

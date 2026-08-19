@@ -102,6 +102,7 @@ Ejecutando `npm run seed` se crean:
 | `user@test.com` | `Password123` | user |
 | `organizer@test.com` | `Password123` | organizer |
 | `admin@test.com` | `Password123` | admin |
+| `organizer2@test.com` | `Password123` | organizer (dueño de otro evento, para probar 403 por evento ajeno) |
 
 También se crea un evento publicado de ejemplo ("Congreso Tech 2026") a nombre del organizador de prueba.
 
